@@ -16,6 +16,7 @@
 joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
+zstring:	.res 2
 
 .segment	"CODE"
 reset:		sei
@@ -223,6 +224,26 @@ puthex:		tay
 		adc #('A'-10)
 :		jsr putchar
 		rts
+
+;params: zstring
+putzstring:	ldy #0
+:		lda (zstring),y
+		beq :+
+		jsr putchar
+		iny
+		jmp :-
+:		rts
+
+putnewline:	lda cursor
+		and #$e0
+		clc
+		adc #$20
+		sta cursor
+		lda cursor+1
+		adc #0
+		sta cursor+1
+		rts
+
 
 
 palette:

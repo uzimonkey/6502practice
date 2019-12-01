@@ -30,7 +30,7 @@ spritedatalen = * - spritedata
 
 
 .segment	"CODE"
-start:
+start:		
 		rts
 
 update:		rts
