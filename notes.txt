@@ -1,0 +1,56 @@
+* Addressing Modes
+ - Absolute: lda $0200
+
+   Load A with the byte at memory address $0200
+
+ - Zero page: lda $02
+
+   Load A with the byte at memory address $0020. This addressing mode is 1 byte
+   smaller and 1 cycle faster.
+
+ - Zero page,X: lda $00,x
+
+   Load A with the byte at memory address $0000+x. Note that if the address + x
+   is greater than $ff, it will wrap around in the zero page. This addressing
+   mode cannot leave the zero page.
+
+ - Zero page,Y: ldx $10,y
+
+   This is the same as zp,x, but can only be used with the ldx and stx
+   instructions.
+
+ - Absolute,X and Absolute,Y: lda $0400,x or sta $0870,y
+
+   Accesses memory at $aaaa+x or $aaaa+y.
+
+ - Immediate: lda #$ff
+
+   No memory access, the value is encoded in the instruction.
+
+ - Relative: jmp $a3
+
+   Jump instructions that jump less than 255 bytes can be encoded using a
+   single byte.
+
+ - Implicit
+
+   No operand. These are instructions like pha or tax. No operands are needed.
+
+ - Indirect: lda ($0200)
+
+   Look at an address at $0200 then get the value at that address. This is like
+   dereferencing a pointer.
+
+ - Indexed indirect: lda ($20,x)
+
+   Take the address from zero page address $20 as with Indirect addressing
+   mode, but add x to the address first. This is like having an array of
+   pointers in the zero page and choosing which one to dereference by a base
+   address and the x register.
+
+ - Indirect indexed: lda ($0200),y
+
+   Take the address at $0200, add y to that and then dereference it. This is
+   like an array access in C, and one of the most useful addressing modes.
+
+   

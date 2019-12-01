@@ -12,13 +12,14 @@
 
 .include "common.inc"
 
-.segment	"ZEROPAGE"
-output:		.res inputsize
-
 .segment	"CODE"
 input:		.asciiz "Hello, world!"
 inputsize=	* - input
 
+.segment	"ZEROPAGE"
+output:		.res inputsize
+
+.segment	"CODE"
 start:		lda #<input
 		sta zstring
 		lda #>input
