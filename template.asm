@@ -30,9 +30,7 @@ spritedatalen = * - spritedata
 
 
 .segment	"CODE"
-start:		lda #123
-		jsr putint
-
+start:
 		rts
 
 update:		rts

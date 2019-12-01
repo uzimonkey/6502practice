@@ -143,6 +143,9 @@ putchar:	ldx #0			;disable rendering
 ;params: a=int
 putint:		tax
 
+		cpx #100
+		bcc @tens
+
 		ldy #0			;count hundreds
 :		sec
 		sbc #100
@@ -163,6 +166,8 @@ putint:		tax
 		tax
 		pla
 
+@tens:		cpx #10
+		bcc @ones
 		ldy #0			;count tens
 :		sec
 		sbc #10
@@ -183,11 +188,42 @@ putint:		tax
 		tax
 		pla
 
-		clc			;put ones
+@ones:		clc			;put ones
 		adc #'0'
 		jsr putchar
 
 		rts
+
+;params: a=int
+puthex:		tay
+
+		lda #'$'
+		jsr putchar
+
+		tya
+		lsr
+		lsr
+		lsr
+		lsr
+		and #$0f
+		jsr @print
+
+		tya
+		and #$0f
+		jsr @print
+
+		rts
+
+@print:		cmp #10
+		bcs :+
+		clc
+		adc #'0'
+		jmp :++
+:		clc
+		adc #('A'-10)
+:		jsr putchar
+		rts
+
 
 palette:
 .incbin		"font.dat", $0, $20
