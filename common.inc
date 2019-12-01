@@ -17,8 +17,19 @@ joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
 zstring:	.res 2
+params:		.tag Params
+VARS ZPAGE_DEFINITIONS
+
 
 .segment	"CODE"
+zpagedefaults:
+VARS ZPAGE_DEFAULTS
+zpagedefaultslen = * - zpagedefaults
+
+spritedata:	
+SPRITES SPRITEDATA
+spritedatalen = * - spritedata
+
 reset:		sei
 		cld
 

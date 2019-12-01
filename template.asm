@@ -1,6 +1,4 @@
 ;vim: ts=8,sw=8
-.include "common.inc"
-
 .union Params
 .endunion
 
@@ -12,22 +10,7 @@
 ;  name			y		sprite	flags		x
 .endmacro
 
-.segment	"STARTUP"
-
-.segment	"ZEROPAGE"
-VARS ZPAGE_DEFINITIONS
-params:		.tag Params
-
-.segment	"CODE"
-zpagedefaults:
-VARS ZPAGE_DEFAULTS
-zpagedefaultslen = * - zpagedefaults
-
-spritedata:	
-SPRITES SPRITEDATA
-spritedatalen = * - spritedata
-
-
+.include "common.inc"
 
 .segment	"CODE"
 start:		

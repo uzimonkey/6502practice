@@ -1,6 +1,4 @@
 ;vim: ts=8,sw=8
-.include "common.inc"
-
 .union Params
 .endunion
 
@@ -12,27 +10,15 @@
 ;  name			y		sprite	flags		x
 .endmacro
 
-.segment	"STARTUP"
+.include "common.inc"
+
+.segment	"ZEROPAGE"
+output:		.res inputsize
 
 .segment	"CODE"
 input:		.asciiz "Hello, world!"
 inputsize=	* - input
 
-.segment	"ZEROPAGE"
-VARS ZPAGE_DEFINITIONS
-params:		.tag Params
-output:		.res inputsize
-
-.segment	"CODE"
-zpagedefaults:
-VARS ZPAGE_DEFAULTS
-zpagedefaultslen = * - zpagedefaults
-
-spritedata:	
-SPRITES SPRITEDATA
-spritedatalen = * - spritedata
-
-.segment	"CODE"
 start:		lda #<input
 		sta zstring
 		lda #>input
