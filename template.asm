@@ -1,6 +1,6 @@
 ;vim: ts=8,sw=8
-.union P
-.endunion
+.macro PARAMS
+.endmacro
 
 .macro VARS _
 ;  name			bytes	default value

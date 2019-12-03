@@ -10,15 +10,16 @@
 ;If bonus is true, the salary should be multiplied by 3. If bonus is false, the
 ;fatcat did not make enough money and must receive only his stated salary.
 
-.define		BONUS_MIN	30
+.define		BONUS_MIN	1000
+.define		BONUS_MULT	4
 
-.union P
+.macro PARAMS
 .struct Bonus
-	salary		.byte
-	bonus		.byte
-	adjusted	.byte
+	salary		.word
+	adjusted	.word
+	_mult		.byte
 .endstruct
-.endunion
+.endmacro
 
 .macro VARS _
 ;  name			bytes	default value
@@ -32,62 +33,94 @@ _ i,			1,	0
 .include "common.inc"
 
 .segment	"CODE"
-input:		.byte 10, 20, 30, 40
+input:		.word 123, 999, 1001, 1234, 12345
 inputsize=	* - input
 
 .segment	"ZEROPAGE"
 
 .segment	"CODE"
-adjust_salary:	lda params+P::Bonus::bonus
-		bne :+		;return original if no bonus
-		lda params+P::Bonus::salary
-		sta params+P::Bonus::adjusted
-		rts
+adjust_salary:	
+@salary=	params+P::Bonus::salary
+@adjusted=	params+P::Bonus::adjusted
+@_mult=		params+P::Bonus::_mult
 
-:		lda #3		;multiply salary by 3
-		sta params+P::Bonus::bonus
+		;no bonus if salary < BONUS_MIN
+		lda @salary+1
+		cmp #>BONUS_MIN
+		bcc @nobonus
+		bne :+
+		lda @salary
+		cmp #<BONUS_MIN
+		bcc @nobonus
+
+:		lda #BONUS_MULT	;multiply salary by BONUS_MULT
+		sta @_mult
 		lda #0
-		sta params+P::Bonus::adjusted
+		sta @adjusted
+		sta @adjusted+1
+
 		ldx #8
-@mult:		lsr params+P::Bonus::bonus
+@loop:		lda @_mult
+		beq @done
+		lsr a
+		sta @_mult
 		bcc :+
-		lda params+P::Bonus::adjusted
+		lda @adjusted
 		clc
-		adc params+P::Bonus::salary
-		sta params+P::Bonus::adjusted
-:		asl params+P::Bonus::salary
+		adc @salary
+		sta @adjusted
+		lda @adjusted+1
+		adc @salary+1
+		sta @adjusted+1
+:		asl @salary
+		rol @salary+1
 		dex
-		bne @mult
+		bne @loop
+@done:		rts
+
+@nobonus:	lda @salary
+		ldx @salary+1
+		sta @adjusted
+		stx @adjusted+1
 		rts
 
-start:		lda #0
-		sta i
-:		ldy i
+start:		ldy i
+
 		lda input,y
+		sta params+P::PutInt::int
+		lda input+1,y
+		sta params+P::PutInt::int+1
 		jsr putint
+
 		lda #' '
 		jsr putchar
+
+		inc i
 		inc i
 		lda i
 		cmp #inputsize
-		bne :-
+		bne start
 		jsr putnewline
-
 
 		lda #0
 		sta i
 :		ldy i
 		lda input,y
 		sta params+P::Bonus::salary
-		cmp #BONUS_MIN
-		lda #0
-		rol
-		sta params+P::Bonus::bonus
+		lda input+1,y
+		sta params+P::Bonus::salary+1
 		jsr adjust_salary
-		lda params+P::Bonus::adjusted
+
+		ldx params+P::Bonus::adjusted
+		lda params+P::Bonus::adjusted+1
+		stx params+P::PutInt::int
+		sta params+P::PutInt::int+1
 		jsr putint
+
 		lda #' '
 		jsr putchar
+
+		inc i
 		inc i
 		lda i
 		cmp #inputsize

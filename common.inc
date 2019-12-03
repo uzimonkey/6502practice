@@ -6,6 +6,17 @@
 .define		INESCTRL2		0
 .include	"ines.inc"
 
+.union P
+PARAMS
+.struct PutZString
+	zstring		.word
+.endstruct
+.struct PutInt
+	int		.word
+	buf		.res 6
+.endstruct
+.endunion
+
 .define		OAM_MIRROR		$0200
 
 .segment	"STARTUP"
@@ -16,7 +27,6 @@
 joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
-zstring:	.res 2
 params:		.tag P
 VARS ZPAGE_DEFINITIONS
 
@@ -152,59 +162,72 @@ putchar:	ldx #0			;disable rendering
 
 		rts
 
-;params: a=int
-putint:		tax
 
-		cpx #100
-		bcc @tens
 
-		ldy #0			;count hundreds
-:		sec
-		sbc #100
-		bcc :+
+putint:		;print an integer to the screen
+@buf=		params+P::PutInt::buf
+@int=		params+P::PutInt::int
+
+		lda #0			;initialize buffer
+		sta @buf+5
+
+		ldx #0			;x = magnitude offset
+		ldy #'0'
+@loop:		;int > magnitude?
+		lda @int+1
+		cmp @mags+1,x
+		bcc @nextmag
+		bne :+
+		lda @int
+		cmp @mags,x
+		bcc @nextmag
+
+:		lda @int
+		sec
+		sbc @mags,x
+		sta @int
+		lda @int+1
+		sbc @mags+1,x
+		sta @int+1
 		iny
-		jmp :-
-:		clc
-		adc #100
+		jmp @loop
 
-		pha			;put hundreds
-		txa
-		pha
-		tya
-		clc
-		adc #'0'
-		jsr putchar
-		pla
+@nextmag:	txa			;store digit
+		lsr
 		tax
-		pla
-
-@tens:		cpx #10
-		bcc @ones
-		ldy #0			;count tens
-:		sec
-		sbc #10
-		bcc :+
-		iny
-		jmp :-
-:		clc
-		adc #10
-
-		pha			;put tens
-		txa
-		pha
-		tya
-		clc
-		adc #'0'
-		jsr putchar
-		pla
+		sty @buf,x
+		ldy #'0'
+		asl
 		tax
-		pla
 
-@ones:		clc			;put ones
-		adc #'0'
-		jsr putchar
+		inx			;go to next magnitude
+		inx
+		cpx #@magsize
+		bne @loop
+
+		ldx #0			;skip leading 0s
+:		cpx #4			;don't skip 1s digit in case of 0
+		beq :+
+		lda @buf,x
+		cmp #'0'
+		bne :+
+		inx
+		jmp :-
+
+:		txa
+		clc
+		adc #params+P::PutInt::buf
+		;this overwrites int, but we're done with it
+		sta params+P::PutZString::zstring
+		lda #0
+		sta params+P::PutZString::zstring+1
+		jsr putzstring
 
 		rts
+@mags:		.word 10000, 1000, 100, 10, 1
+@magsize=	* - @mags
+		
+
 
 ;params: a=int
 puthex:		tay
@@ -236,9 +259,13 @@ puthex:		tay
 :		jsr putchar
 		rts
 
-;params: zstring
-putzstring:	ldy #0
-:		lda (zstring),y
+
+
+putzstring:	;print a zero-terminated string
+@zstring=	params+P::PutZString::zstring
+
+		ldy #0
+:		lda (@zstring),y
 		beq :+
 		jsr putchar
 		iny

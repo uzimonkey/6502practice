@@ -1,6 +1,6 @@
 ;vim: ts=8,sw=8
-.union P
-.endunion
+.macro PARAMS
+.endmacro
 
 .macro VARS _
 ;  name			bytes	default value
@@ -21,9 +21,9 @@ output:		.res inputsize
 
 .segment	"CODE"
 start:		lda #<input
-		sta zstring
+		sta params+P::PutZString::zstring
 		lda #>input
-		sta zstring+1
+		sta params+P::PutZString::zstring+1
 		jsr putzstring
 		jsr putnewline
 
@@ -57,9 +57,9 @@ start:		lda #<input
 		jmp @loop
 
 :		lda #<output
-		sta zstring
+		sta params+P::PutZString::zstring
 		lda #>output
-		sta zstring+1
+		sta params+P::PutZString::zstring+1
 		jsr putzstring
 
 		jsr putnewline
