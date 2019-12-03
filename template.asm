@@ -1,5 +1,5 @@
 ;vim: ts=8,sw=8
-.union Params
+.union P
 .endunion
 
 .macro VARS _

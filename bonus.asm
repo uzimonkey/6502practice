@@ -12,7 +12,7 @@
 
 .define		BONUS_MIN	30
 
-.union Params
+.union P
 .struct Bonus
 	salary		.byte
 	bonus		.byte
@@ -38,24 +38,24 @@ inputsize=	* - input
 .segment	"ZEROPAGE"
 
 .segment	"CODE"
-adjust_salary:	lda params+Params::Bonus::bonus
+adjust_salary:	lda params+P::Bonus::bonus
 		bne :+		;return original if no bonus
-		lda params+Params::Bonus::salary
-		sta params+Params::Bonus::adjusted
+		lda params+P::Bonus::salary
+		sta params+P::Bonus::adjusted
 		rts
 
 :		lda #3		;multiply salary by 3
-		sta params+Params::Bonus::bonus
+		sta params+P::Bonus::bonus
 		lda #0
-		sta params+Params::Bonus::adjusted
+		sta params+P::Bonus::adjusted
 		ldx #8
-@mult:		lsr params+Params::Bonus::bonus
+@mult:		lsr params+P::Bonus::bonus
 		bcc :+
-		lda params+Params::Bonus::adjusted
+		lda params+P::Bonus::adjusted
 		clc
-		adc params+Params::Bonus::salary
-		sta params+Params::Bonus::adjusted
-:		asl params+Params::Bonus::salary
+		adc params+P::Bonus::salary
+		sta params+P::Bonus::adjusted
+:		asl params+P::Bonus::salary
 		dex
 		bne @mult
 		rts
@@ -78,13 +78,13 @@ start:		lda #0
 		sta i
 :		ldy i
 		lda input,y
-		sta params+Params::Bonus::salary
+		sta params+P::Bonus::salary
 		cmp #BONUS_MIN
 		lda #0
 		rol
-		sta params+Params::Bonus::bonus
+		sta params+P::Bonus::bonus
 		jsr adjust_salary
-		lda params+Params::Bonus::adjusted
+		lda params+P::Bonus::adjusted
 		jsr putint
 		lda #' '
 		jsr putchar

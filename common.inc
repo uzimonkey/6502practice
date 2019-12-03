@@ -17,7 +17,7 @@ joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
 zstring:	.res 2
-params:		.tag Params
+params:		.tag P
 VARS ZPAGE_DEFINITIONS
 
 
