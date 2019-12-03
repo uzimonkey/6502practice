@@ -13,7 +13,7 @@
 .include "common.inc"
 
 .segment	"CODE"
-input:		.asciiz "Hello, world!"
+input:		.byte "Hello, NES! ",$01,$02,$00
 inputsize=	* - input
 
 .segment	"ZEROPAGE"
@@ -28,30 +28,32 @@ start:		lda #<input
 		jsr putnewline
 
 		ldx #0
-@loop:		lda input,x		;get char
+@loop:		lda input,x		;save the case bit on the stack
 		tay
+		rol
+		rol
+		rol
+		php
 
-		cmp #'A'		;check if capital
-		bcc @output
-		cmp #'Z'
-		bcs @lower
+		tya			;use caseless letter
+		and #$DF
 
+		cmp #'Z'+1
+		bcs @output		;A > 'Z'
+		cmp #'A'
+		bcc @output		;A < 'A'
+
+		clc			;do shift
 		adc #13
-		cmp #'Z'
-		bcc @output
-		sbc #26
-		jmp @output
-
-@lower:		cmp #'a'
-		bcc @output
-		cmp #'z'
-		bcs @output
-		adc #13
-		cmp #'z'
+		cmp #'Z'+1
 		bcc @output
 		sbc #26
 
-@output:	sta output,x
+@output:	plp			;restore status, has case bit
+		bcc :+
+		ora #$20		;restore case bit
+:		sta output,x
+		cmp #0
 		beq :+
 		inx
 		jmp @loop
@@ -63,9 +65,6 @@ start:		lda #<input
 		jsr putzstring
 
 		jsr putnewline
-		lda #1
-		jsr putchar
-
 		rts
 
 update:		rts

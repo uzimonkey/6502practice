@@ -14,26 +14,15 @@ _ i,			1,	0
 .include "common.inc"
 
 .segment	"CODE"
-input:		.word 1234,5678,10345
-inputsize=	* - input
+message:	.byte "Hello, world! ",$01,$00
 
-start:		ldx i
-		lda input,x
-		sta params+P::PutInt::int
-		lda input+1,x
-		sta params+P::PutInt::int+1
-		jsr putint
-		ldx i
-		inx
-		inx
-		stx i
-		cpx #inputsize
-		beq :+
-		lda #','
-		jsr putchar
-		jmp start
+start:		lda #<message
+		sta params+P::PutZString::zstring
+		lda #>message
+		sta params+P::PutZString::zstring+1
+		jsr putzstring
 		
-:		rts
+		rts
 
 update:		rts
 
