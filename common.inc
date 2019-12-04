@@ -24,10 +24,10 @@ PARAMS
 .segment	"OAM"
 
 .segment	"ZEROPAGE"
+params:		.tag P
 joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
-params:		.tag P
 VARS ZPAGE_DEFINITIONS
 
 

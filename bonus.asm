@@ -33,7 +33,8 @@ _ i,			1,	0
 .include "common.inc"
 
 .segment	"CODE"
-input:		.word 123, 999, 1001, 1234, 12345
+input:		.word 500, 999, 1000, 1001, 4000
+;input:		.word 4000
 inputsize=	* - input
 
 .segment	"ZEROPAGE"
@@ -47,13 +48,14 @@ adjust_salary:
 		;no bonus if salary < BONUS_MIN
 		lda @salary+1
 		cmp #>BONUS_MIN
+		beq :+
+		bcs @bonus
 		bcc @nobonus
-		bne :+
-		lda @salary
+:		lda @salary
 		cmp #<BONUS_MIN
 		bcc @nobonus
 
-:		lda #BONUS_MULT	;multiply salary by BONUS_MULT
+@bonus:		lda #BONUS_MULT	;multiply salary by BONUS_MULT
 		sta @_mult
 		lda #0
 		sta @adjusted
