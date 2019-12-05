@@ -145,7 +145,11 @@ lbl: .res size_
 
 
 .macro ZPAGE_DEFAULTS lbl, size_, default
-.byte default
+.if size_ = 1
+	.byte default
+.elseif size_ = 2
+	.word default
+.endif
 .endmacro
 
 
