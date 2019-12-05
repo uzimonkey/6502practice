@@ -25,10 +25,10 @@ PARAMS
 
 .segment	"ZEROPAGE"
 params:		.tag P
+VARS ZPAGE_DEFINITIONS
 joy1:		.res 1
 joy2:		.res 1
 cursor:		.res 2
-VARS ZPAGE_DEFINITIONS
 
 
 .segment	"CODE"
@@ -67,7 +67,7 @@ reset:		sei
 
 		ldx #zpagedefaultslen	;initialize zpage
 :		lda zpagedefaults,x
-		sta $0000,x
+		sta $0000+.sizeof(P),x
 		dex
 		bpl :-
 
